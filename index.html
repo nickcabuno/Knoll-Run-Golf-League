@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knoll Run Golf League — Leaderboard</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="logo.png" alt="Knoll Run Golf Course" class="logo-img" />
+      <div>
+        <h1>Knoll Run Golf League</h1>
+        <p class="tag">Season Leaderboard</p>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="index.html" class="active">Leaderboard</a>
+      <a href="stats.html">Stat Leaders</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Season Standings</h2>
+        <div class="controls">
+          <label class="sort-label">
+            Sort by
+            <select id="sortBy">
+              <option value="record">Record</option>
+              <option value="avg">Scoring Average</option>
+              <option value="best">Best Round</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table" id="leaderboard">
+          <thead id="leaderboardHead"></thead>
+          <tbody id="leaderboardBody">
+            <tr><td colspan="7" class="empty">No rounds posted yet. Check back soon.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="foot-note">
+        Record is based on head-to-head weekly matchups: W-L.
+      </p>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Weekly Matchups</h2>
+        <p class="muted" id="weekLabel"></p>
+      </div>
+      <div id="matchupsWrap">
+        <p class="empty-msg">No matchups scheduled yet.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; Knoll Run Golf League</span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knoll Run Golf League — Stat Leaders</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">KR</div>
+      <div>
+        <h1>Knoll Run Golf League</h1>
+        <p class="tag">Stat Leaders</p>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="index.html">Leaderboard</a>
+      <a href="stats.html" class="active">Stat Leaders</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Category Leaders</h2>
+        <p class="muted">Top performers across the season</p>
+      </div>
+
+      <div class="stats-grid" id="statsGrid">
+        <!-- populated by stats.js -->
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>League Totals</h2>
+      </div>
+      <div class="fun-grid" id="funGrid">
+        <!-- populated by stats.js -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; Knoll Run Golf League</span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="stats.js"></script>
+</body>
+</html>

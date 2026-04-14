@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Knoll Run — Admin</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="admin-body">
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">KR</div>
+      <div>
+        <h1>Knoll Run Admin</h1>
+        <p class="tag">League Management</p>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="index.html">&larr; Back to Site</a>
+      <a href="#" id="logoutBtn" style="display:none">Log out</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Login view -->
+    <section class="panel login-panel" id="loginView">
+      <div class="panel-head">
+        <h2>Admin Sign-in</h2>
+        <p class="muted">Restricted area. Enter the league passcode to continue.</p>
+      </div>
+      <form id="loginForm" class="stacked-form">
+        <label>
+          Passcode
+          <input type="password" id="passcode" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="btn primary">Sign in</button>
+        <p class="error" id="loginError"></p>
+      </form>
+    </section>
+
+    <!-- Admin dashboard -->
+    <section id="adminView" style="display:none">
+      <div class="tabs">
+        <button class="tab active" data-tab="round">Post a Round</button>
+        <button class="tab" data-tab="matchups">Matchups</button>
+        <button class="tab" data-tab="players">Players</button>
+        <button class="tab" data-tab="rounds">Rounds</button>
+        <button class="tab" data-tab="data">Data</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </div>
+
+      <!-- POST ROUND -->
+      <div class="panel tab-panel active" data-tab="round">
+        <div class="panel-head"><h2>Post a Round</h2></div>
+        <form id="roundForm" class="grid-form">
+          <label>Player
+            <select id="roundPlayer" required></select>
+          </label>
+          <label>Date
+            <input type="date" id="roundDate" required />
+          </label>
+          <label>Score (strokes)
+            <input type="number" id="roundScore" min="18" max="200" required />
+          </label>
+          <label>Course (optional)
+            <input type="text" id="roundCourse" placeholder="e.g. Knoll Run CC" />
+          </label>
+          <label>Birdies
+            <input type="number" id="roundBirdies" min="0" value="0" />
+          </label>
+          <label>Eagles
+            <input type="number" id="roundEagles" min="0" value="0" />
+          </label>
+          <label>Hole in Ones
+            <input type="number" id="roundHIO" min="0" value="0" />
+          </label>
+          <label>Pars
+            <input type="number" id="roundPars" min="0" value="0" />
+          </label>
+          <label>Bogeys
+            <input type="number" id="roundBogeys" min="0" value="0" />
+          </label>
+          <label>Double Bogeys
+            <input type="number" id="roundDoubleBogeys" min="0" value="0" />
+          </label>
+          <label>Fairways Hit
+            <input type="number" id="roundFairways" min="0" value="0" />
+          </label>
+          <label>Greens in Regulation
+            <input type="number" id="roundGIR" min="0" value="0" />
+          </label>
+          <label>Total Putts
+            <input type="number" id="roundPutts" min="0" value="0" />
+          </label>
+          <label>Longest Drive (yds)
+            <input type="number" id="roundDrive" min="0" value="0" />
+          </label>
+          <label>Sandies
+            <input type="number" id="roundSandies" min="0" value="0" />
+          </label>
+          <div class="form-actions full">
+            <button type="submit" class="btn primary">Save Round</button>
+            <span class="status" id="roundStatus"></span>
+          </div>
+        </form>
+      </div>
+
+      <!-- MATCHUPS -->
+      <div class="panel tab-panel" data-tab="matchups">
+        <div class="panel-head"><h2>Weekly Matchups</h2>
+          <p class="muted">Schedule head-to-head matchups and mark winners. The most recent date shows on the homepage.</p>
+        </div>
+        <form id="matchupForm" class="grid-form">
+          <label>Date
+            <input type="date" id="matchupDate" required />
+          </label>
+          <label>Player 1
+            <select id="matchupP1" required></select>
+          </label>
+          <label>Player 2
+            <select id="matchupP2" required></select>
+          </label>
+          <div class="form-actions full">
+            <button type="submit" class="btn primary">Add Matchup</button>
+            <span class="status" id="matchupStatus"></span>
+          </div>
+        </form>
+        <div id="matchupsList" style="margin-top:16px"></div>
+      </div>
+
+      <!-- PLAYERS -->
+      <div class="panel tab-panel" data-tab="players">
+        <div class="panel-head"><h2>Players</h2></div>
+        <form id="playerForm" class="inline-form">
+          <input type="text" id="playerName" placeholder="Player name" required />
+          <button type="submit" class="btn">Add Player</button>
+        </form>
+        <div class="table-wrap">
+          <table class="data-table" id="playersTable">
+            <thead><tr><th>Name</th><th class="num">Rounds</th><th></th></tr></thead>
+            <tbody id="playersBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ROUNDS -->
+      <div class="panel tab-panel" data-tab="rounds">
+        <div class="panel-head"><h2>All Rounds</h2></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Date</th><th>Player</th><th class="num">Score</th><th class="num">Birdies</th><th class="num">Eagles</th><th class="num">HIO</th><th></th></tr>
+            </thead>
+            <tbody id="roundsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- DATA -->
+      <div class="panel tab-panel" data-tab="data">
+        <div class="panel-head"><h2>Import / Export</h2>
+          <p class="muted">Share the league dataset between admins. Export JSON here, then import on another device.</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn" id="exportBtn">Export JSON</button>
+          <label class="btn file-btn">
+            Import JSON
+            <input type="file" id="importFile" accept="application/json" hidden />
+          </label>
+          <button class="btn danger" id="wipeBtn">Wipe All Data</button>
+        </div>
+        <p class="status" id="dataStatus"></p>
+      </div>
+
+      <!-- SETTINGS -->
+      <div class="panel tab-panel" data-tab="settings">
+        <div class="panel-head"><h2>Change Passcode</h2></div>
+        <form id="pwForm" class="stacked-form narrow">
+          <label>Current passcode
+            <input type="password" id="pwCurrent" required />
+          </label>
+          <label>New passcode
+            <input type="password" id="pwNew" required minlength="4" />
+          </label>
+          <label>Confirm new passcode
+            <input type="password" id="pwConfirm" required minlength="4" />
+          </label>
+          <button type="submit" class="btn primary">Update Passcode</button>
+          <p class="status" id="pwStatus"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; Knoll Run Golf League &middot; Admin</span>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

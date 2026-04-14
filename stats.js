@@ -1,0 +1,81 @@
+/* Stat leaders page */
+(function () {
+  const data = KRGolf.load();
+  const stats = KRGolf.playerStats(data);
+
+  const grid = document.getElementById('statsGrid');
+  const fun = document.getElementById('funGrid');
+
+  const categories = [
+    { title: '🐦 Birdies',       key: 'birdies',      dir: 'desc', min: 1, sub: 'Most birdies this season' },
+    { title: '🦅 Eagles',        key: 'eagles',       dir: 'desc', min: 1, sub: 'Most eagles this season' },
+    { title: '🎯 Pars',          key: 'pars',         dir: 'desc', min: 1, sub: 'Steady as she goes' },
+    { title: '😬 Bogeys',        key: 'bogeys',       dir: 'desc', min: 1, sub: 'Most bogeys this season' },
+    { title: '⛳ Best Round',     key: 'best',         dir: 'asc',  min: 1, sub: 'Single lowest round' },
+    { title: '🏆 Lowest Average',key: 'avg',          dir: 'asc',  min: 1, sub: 'Scoring average (min 1 round)', fmt: (v) => v == null ? '—' : v.toFixed(1) }
+  ];
+
+  function rank(list, key, dir, min, fmt) {
+    const filtered = list.filter((s) => s.rounds >= min && s[key] != null && s[key] !== 0 || (key === 'avg' || key === 'best' || key === 'puttsPerRound') && s.rounds >= min && s[key] != null);
+    const cleaned = list.filter((s) => s.rounds >= min && s[key] != null && !(typeof s[key] === 'number' && isNaN(s[key])));
+    // Special: counting stats require >0 to be interesting, computed averages only need rounds>=min
+    const isCounting = !['avg', 'best', 'puttsPerRound'].includes(key);
+    const usable = cleaned.filter((s) => (isCounting ? s[key] > 0 : true));
+    usable.sort((a, b) => (dir === 'asc' ? a[key] - b[key] : b[key] - a[key]));
+    return usable.slice(0, 5).map((s) => ({ name: s.name, val: fmt ? fmt(s[key]) : s[key] }));
+  }
+
+  grid.innerHTML = categories
+    .map((c) => {
+      const top = rank(stats, c.key, c.dir, c.min || 1, c.fmt);
+      const body = top.length
+        ? `<ol class="stat-list">${top
+            .map(
+              (t, i) => `<li><span class="name"><span class="pos">${i + 1}.</span>${escapeHtml(t.name)}</span><span class="val">${t.val}</span></li>`
+            )
+            .join('')}</ol>`
+        : `<p class="none">No data yet</p>`;
+      return `
+        <div class="stat-card">
+          <h3>${c.title}</h3>
+          <p class="sub">${c.sub}</p>
+          ${body}
+        </div>`;
+    })
+    .join('');
+
+  // Fun stats: single-value highlights
+  const funStats = computeFunStats(data, stats);
+  fun.innerHTML = funStats
+    .map(
+      (f) => `
+      <div class="fun-card">
+        <div class="label">${f.label}</div>
+        <div class="value">${f.value}</div>
+        <div class="who">${escapeHtml(f.who || '')}</div>
+      </div>`
+    )
+    .join('');
+
+  function computeFunStats(data, stats) {
+    const sum = (key) => data.rounds.reduce((s, r) => s + (Number(r[key]) || 0), 0);
+    const totalRounds = data.rounds.length;
+    const totalScore = data.rounds.reduce((s, r) => s + (Number(r.score) || 0), 0);
+    const leagueAvg = totalRounds ? (totalScore / totalRounds) : null;
+
+    return [
+      { label: 'Eagles', value: sum('eagles'), who: 'league-wide' },
+      { label: 'Birdies', value: sum('birdies'), who: 'collectively made' },
+      { label: 'Pars', value: sum('pars'), who: 'steady as she goes' },
+      { label: 'Bogeys', value: sum('bogeys'), who: 'we all have them' },
+      { label: 'Double Bogeys', value: sum('doubleBogeys'), who: 'shake it off' },
+      { label: 'League Average Score', value: leagueAvg != null ? leagueAvg.toFixed(1) : '—', who: totalRounds ? `across ${totalRounds} round${totalRounds === 1 ? '' : 's'}` : 'no rounds yet' }
+    ];
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+})();

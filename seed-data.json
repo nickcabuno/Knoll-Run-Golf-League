@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "league": {
+    "name": "Knoll Run Golf League",
+    "season": 2026
+  },
+  "players": [
+    { "id": "p1", "name": "Jordan Speith" },
+    { "id": "p2", "name": "Rory McIlroy" },
+    { "id": "p3", "name": "Scottie Scheffler" },
+    { "id": "p4", "name": "Tiger Woods" },
+    { "id": "p5", "name": "Phil Mickelson" },
+    { "id": "p6", "name": "Jon Rahm" }
+  ],
+  "rounds": [
+    { "id": "r1", "playerId": "p1", "date": "2026-05-05", "score": 75, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 6, "doubleBogeys": 0, "fairways": 10, "gir": 12, "putts": 31, "drive": 283, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r2", "playerId": "p2", "date": "2026-05-05", "score": 73, "birdies": 5, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 13, "gir": 14, "putts": 32, "drive": 291, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r3", "playerId": "p3", "date": "2026-05-05", "score": 73, "birdies": 6, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 9,  "gir": 11, "putts": 31, "drive": 282, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r4", "playerId": "p4", "date": "2026-05-05", "score": 76, "birdies": 3, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 6, "doubleBogeys": 0, "fairways": 12, "gir": 11, "putts": 29, "drive": 333, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r5", "playerId": "p5", "date": "2026-05-05", "score": 75, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 5, "doubleBogeys": 1, "fairways": 13, "gir": 9,  "putts": 31, "drive": 337, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r6", "playerId": "p6", "date": "2026-05-05", "score": 73, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 12, "gir": 13, "putts": 30, "drive": 309, "sandies": 0, "course": "Knoll Run CC" },
+
+    { "id": "r7",  "playerId": "p1", "date": "2026-05-12", "score": 76, "birdies": 3, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 5, "doubleBogeys": 1, "fairways": 10, "gir": 13, "putts": 31, "drive": 326, "sandies": 2, "course": "Knoll Run CC" },
+    { "id": "r8",  "playerId": "p2", "date": "2026-05-12", "score": 71, "birdies": 7, "eagles": 0, "holeInOnes": 0, "pars": 11, "bogeys": 1, "doubleBogeys": 0, "fairways": 10, "gir": 9,  "putts": 30, "drive": 281, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r9",  "playerId": "p3", "date": "2026-05-12", "score": 72, "birdies": 5, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 2, "doubleBogeys": 0, "fairways": 7,  "gir": 10, "putts": 30, "drive": 310, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r10", "playerId": "p4", "date": "2026-05-12", "score": 72, "birdies": 5, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 9,  "gir": 11, "putts": 31, "drive": 308, "sandies": 2, "course": "Knoll Run CC" },
+    { "id": "r11", "playerId": "p5", "date": "2026-05-12", "score": 78, "birdies": 1, "eagles": 0, "holeInOnes": 0, "pars": 7,  "bogeys": 7, "doubleBogeys": 1, "fairways": 10, "gir": 13, "putts": 29, "drive": 289, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r12", "playerId": "p6", "date": "2026-05-12", "score": 74, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 4, "doubleBogeys": 0, "fairways": 12, "gir": 11, "putts": 30, "drive": 329, "sandies": 1, "course": "Knoll Run CC" },
+
+    { "id": "r13", "playerId": "p1", "date": "2026-05-19", "score": 72, "birdies": 6, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 12, "gir": 9,  "putts": 32, "drive": 323, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r14", "playerId": "p2", "date": "2026-05-19", "score": 70, "birdies": 8, "eagles": 0, "holeInOnes": 0, "pars": 12, "bogeys": 2, "doubleBogeys": 0, "fairways": 11, "gir": 10, "putts": 29, "drive": 292, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r15", "playerId": "p3", "date": "2026-05-19", "score": 70, "birdies": 7, "eagles": 0, "holeInOnes": 0, "pars": 12, "bogeys": 1, "doubleBogeys": 0, "fairways": 9,  "gir": 9,  "putts": 32, "drive": 332, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r16", "playerId": "p4", "date": "2026-05-19", "score": 74, "birdies": 5, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 5, "doubleBogeys": 0, "fairways": 8,  "gir": 10, "putts": 32, "drive": 322, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r17", "playerId": "p5", "date": "2026-05-19", "score": 75, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 4, "doubleBogeys": 0, "fairways": 12, "gir": 12, "putts": 29, "drive": 296, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r18", "playerId": "p6", "date": "2026-05-19", "score": 71, "birdies": 6, "eagles": 0, "holeInOnes": 0, "pars": 11, "bogeys": 1, "doubleBogeys": 0, "fairways": 12, "gir": 10, "putts": 29, "drive": 328, "sandies": 2, "course": "Knoll Run CC" },
+
+    { "id": "r19", "playerId": "p1", "date": "2026-05-26", "score": 75, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 5, "doubleBogeys": 0, "fairways": 9,  "gir": 14, "putts": 29, "drive": 315, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r20", "playerId": "p2", "date": "2026-05-26", "score": 68, "birdies": 8, "eagles": 0, "holeInOnes": 0, "pars": 13, "bogeys": 1, "doubleBogeys": 0, "fairways": 10, "gir": 12, "putts": 32, "drive": 293, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r21", "playerId": "p3", "date": "2026-05-26", "score": 73, "birdies": 5, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 4, "doubleBogeys": 0, "fairways": 8,  "gir": 10, "putts": 32, "drive": 291, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r22", "playerId": "p4", "date": "2026-05-26", "score": 76, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 5, "doubleBogeys": 2, "fairways": 9,  "gir": 13, "putts": 32, "drive": 304, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r23", "playerId": "p5", "date": "2026-05-26", "score": 76, "birdies": 2, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 6, "doubleBogeys": 2, "fairways": 9,  "gir": 10, "putts": 33, "drive": 285, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r24", "playerId": "p6", "date": "2026-05-26", "score": 71, "birdies": 7, "eagles": 0, "holeInOnes": 0, "pars": 11, "bogeys": 2, "doubleBogeys": 0, "fairways": 8,  "gir": 9,  "putts": 31, "drive": 309, "sandies": 2, "course": "Knoll Run CC" },
+
+    { "id": "r25", "playerId": "p1", "date": "2026-06-02", "score": 72, "birdies": 5, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 9,  "gir": 10, "putts": 28, "drive": 333, "sandies": 2, "course": "Knoll Run CC" },
+    { "id": "r26", "playerId": "p2", "date": "2026-06-02", "score": 73, "birdies": 6, "eagles": 0, "holeInOnes": 0, "pars": 10, "bogeys": 3, "doubleBogeys": 0, "fairways": 7,  "gir": 10, "putts": 30, "drive": 310, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r27", "playerId": "p3", "date": "2026-06-02", "score": 69, "birdies": 8, "eagles": 1, "holeInOnes": 0, "pars": 12, "bogeys": 1, "doubleBogeys": 0, "fairways": 8,  "gir": 14, "putts": 31, "drive": 291, "sandies": 0, "course": "Knoll Run CC" },
+    { "id": "r28", "playerId": "p4", "date": "2026-06-02", "score": 76, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 5, "doubleBogeys": 1, "fairways": 9,  "gir": 8,  "putts": 30, "drive": 294, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r29", "playerId": "p5", "date": "2026-06-02", "score": 76, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 5, "doubleBogeys": 1, "fairways": 13, "gir": 13, "putts": 29, "drive": 311, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r30", "playerId": "p6", "date": "2026-06-02", "score": 74, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 4, "doubleBogeys": 0, "fairways": 9,  "gir": 12, "putts": 29, "drive": 296, "sandies": 0, "course": "Knoll Run CC" },
+
+    { "id": "r31", "playerId": "p1", "date": "2026-06-09", "score": 70, "birdies": 7, "eagles": 0, "holeInOnes": 0, "pars": 12, "bogeys": 1, "doubleBogeys": 0, "fairways": 11, "gir": 13, "putts": 32, "drive": 322, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r32", "playerId": "p2", "date": "2026-06-09", "score": 71, "birdies": 6, "eagles": 0, "holeInOnes": 0, "pars": 11, "bogeys": 3, "doubleBogeys": 0, "fairways": 8,  "gir": 8,  "putts": 29, "drive": 311, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r33", "playerId": "p3", "date": "2026-06-09", "score": 70, "birdies": 8, "eagles": 0, "holeInOnes": 0, "pars": 12, "bogeys": 1, "doubleBogeys": 0, "fairways": 9,  "gir": 14, "putts": 32, "drive": 297, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r34", "playerId": "p4", "date": "2026-06-09", "score": 74, "birdies": 4, "eagles": 0, "holeInOnes": 0, "pars": 9,  "bogeys": 5, "doubleBogeys": 0, "fairways": 11, "gir": 9,  "putts": 32, "drive": 339, "sandies": 1, "course": "Knoll Run CC" },
+    { "id": "r35", "playerId": "p5", "date": "2026-06-09", "score": 76, "birdies": 3, "eagles": 0, "holeInOnes": 0, "pars": 8,  "bogeys": 6, "doubleBogeys": 0, "fairways": 11, "gir": 8,  "putts": 32, "drive": 335, "sandies": 2, "course": "Knoll Run CC" },
+    { "id": "r36", "playerId": "p6", "date": "2026-06-09", "score": 71, "birdies": 7, "eagles": 0, "holeInOnes": 0, "pars": 11, "bogeys": 2, "doubleBogeys": 0, "fairways": 9,  "gir": 13, "putts": 29, "drive": 299, "sandies": 2, "course": "Knoll Run CC" }
+  ],
+  "matchups": [
+    { "id": "m1",  "date": "2026-05-05", "player1Id": "p1", "player2Id": "p2", "winnerId": "p2" },
+    { "id": "m2",  "date": "2026-05-05", "player1Id": "p3", "player2Id": "p4", "winnerId": "p3" },
+    { "id": "m3",  "date": "2026-05-05", "player1Id": "p5", "player2Id": "p6", "winnerId": "p6" },
+    { "id": "m4",  "date": "2026-05-12", "player1Id": "p1", "player2Id": "p3", "winnerId": "p3" },
+    { "id": "m5",  "date": "2026-05-12", "player1Id": "p2", "player2Id": "p5", "winnerId": "p2" },
+    { "id": "m6",  "date": "2026-05-12", "player1Id": "p4", "player2Id": "p6", "winnerId": "p4" },
+    { "id": "m7",  "date": "2026-05-19", "player1Id": "p1", "player2Id": "p4", "winnerId": "p1" },
+    { "id": "m8",  "date": "2026-05-19", "player1Id": "p2", "player2Id": "p6", "winnerId": "p2" },
+    { "id": "m9",  "date": "2026-05-19", "player1Id": "p3", "player2Id": "p5", "winnerId": "p3" },
+    { "id": "m10", "date": "2026-05-26", "player1Id": "p1", "player2Id": "p5", "winnerId": "p1" },
+    { "id": "m11", "date": "2026-05-26", "player1Id": "p2", "player2Id": "p4", "winnerId": "p2" },
+    { "id": "m12", "date": "2026-05-26", "player1Id": "p3", "player2Id": "p6", "winnerId": "p6" },
+    { "id": "m13", "date": "2026-06-02", "player1Id": "p1", "player2Id": "p6", "winnerId": "p1" },
+    { "id": "m14", "date": "2026-06-02", "player1Id": "p2", "player2Id": "p3", "winnerId": "p3" },
+    { "id": "m15", "date": "2026-06-02", "player1Id": "p4", "player2Id": "p5", "winnerId": "tie" },
+    { "id": "m16", "date": "2026-06-09", "player1Id": "p1", "player2Id": "p2", "winnerId": "p1" },
+    { "id": "m17", "date": "2026-06-09", "player1Id": "p3", "player2Id": "p4", "winnerId": "p3" },
+    { "id": "m18", "date": "2026-06-09", "player1Id": "p5", "player2Id": "p6", "winnerId": "p6" }
+  ],
+  "settings": {
+    "pwHash": null
+  }
+}

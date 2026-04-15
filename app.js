@@ -1,22 +1,28 @@
-/* Homepage: renders leaderboard + weekly matchups */
-(function () {
-  const data = KRGolf.load();
-  const playersById = Object.fromEntries(data.players.map((p) => [p.id, p]));
-
+/* Homepage: renders leaderboard + weekly matchups (async Supabase) */
+(async function () {
   const sortSelect = document.getElementById('sortBy');
   const lbHead = document.getElementById('leaderboardHead');
   const lbBody = document.getElementById('leaderboardBody');
   const matchupsWrap = document.getElementById('matchupsWrap');
   const weekLabel = document.getElementById('weekLabel');
 
+  let data;
+  try {
+    data = await KRGolf.loadData();
+  } catch (err) {
+    console.error(err);
+    lbBody.innerHTML = `<tr><td colspan="8" class="empty">Could not load league data. Please try again.</td></tr>`;
+    matchupsWrap.innerHTML = '<p class="empty-msg">Could not load matchups.</p>';
+    return;
+  }
+
+  const playersById = Object.fromEntries(data.players.map((p) => [p.id, p]));
+
   function rankBadge(i) {
     const cls = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
     return `<span class="rank ${cls}">${i + 1}</span>`;
   }
 
-  /* Column set for the leaderboard table.
-   * When sorting by Record, Record is promoted to the first data column.
-   */
   function columnsFor(sortKey) {
     const cols = [
       { key: 'best', label: 'Best', render: (r) => r.best ?? '—' },
@@ -86,12 +92,7 @@
       weekLabel.textContent = '';
       return;
     }
-    // Find latest date, show only matchups from that date ("this week")
-    const latest = matchups
-      .map((m) => m.date)
-      .filter(Boolean)
-      .sort()
-      .pop();
+    const latest = matchups.map((m) => m.date).filter(Boolean).sort().pop();
     const thisWeek = matchups.filter((m) => m.date === latest);
     weekLabel.textContent = latest ? `Week of ${formatDate(latest)}` : '';
 

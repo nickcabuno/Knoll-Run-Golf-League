@@ -1,58 +1,13 @@
-/* Admin page — login + data management */
-(function () {
+/* Admin (Supabase-backed) — login + data management */
+(async function () {
   const loginView = document.getElementById('loginView');
   const adminView = document.getElementById('adminView');
   const loginForm = document.getElementById('loginForm');
   const loginError = document.getElementById('loginError');
   const logoutBtn = document.getElementById('logoutBtn');
 
-  function showAdmin() {
-    loginView.style.display = 'none';
-    adminView.style.display = 'block';
-    logoutBtn.style.display = 'inline-block';
-    renderAll();
-  }
-  function showLogin() {
-    loginView.style.display = 'block';
-    adminView.style.display = 'none';
-    logoutBtn.style.display = 'none';
-  }
+  let data = { players: [], rounds: [], matchups: [] };
 
-  if (KRGolf.isAuthed()) showAdmin();
-  else showLogin();
-
-  loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    loginError.textContent = '';
-    const code = document.getElementById('passcode').value;
-    const ok = await KRGolf.verifyPasscode(code);
-    if (ok) {
-      KRGolf.setAuthed(true);
-      document.getElementById('passcode').value = '';
-      showAdmin();
-    } else {
-      loginError.textContent = 'Incorrect passcode.';
-    }
-  });
-
-  logoutBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    KRGolf.setAuthed(false);
-    showLogin();
-  });
-
-  /* --- Tabs --- */
-  document.querySelectorAll('.tab').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const t = btn.dataset.tab;
-      document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
-      document.querySelectorAll('.tab-panel').forEach((p) => {
-        p.classList.toggle('active', p.dataset.tab === t);
-      });
-    });
-  });
-
-  /* --- Helpers --- */
   const $ = (id) => document.getElementById(id);
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, (c) => ({
@@ -70,6 +25,61 @@
     el.className = 'status' + (cls ? ' ' + cls : '');
     if (msg) setTimeout(() => { if (el.textContent === msg) el.textContent = ''; }, 3500);
   }
+  async function reload() {
+    data = await KRGolf.loadData();
+    renderAll();
+  }
+
+  async function showAdmin() {
+    loginView.style.display = 'none';
+    adminView.style.display = 'block';
+    logoutBtn.style.display = 'inline-block';
+    await reload();
+  }
+  function showLogin() {
+    loginView.style.display = 'block';
+    adminView.style.display = 'none';
+    logoutBtn.style.display = 'none';
+  }
+
+  // Initial auth check
+  try {
+    if (await KRGolf.isAuthed()) await showAdmin();
+    else showLogin();
+  } catch (err) {
+    console.error(err);
+    showLogin();
+  }
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.textContent = '';
+    const code = $('passcode').value;
+    const ok = await KRGolf.signIn(code);
+    if (ok) {
+      $('passcode').value = '';
+      await showAdmin();
+    } else {
+      loginError.textContent = 'Incorrect passcode.';
+    }
+  });
+
+  logoutBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    await KRGolf.signOut();
+    showLogin();
+  });
+
+  /* Tabs */
+  document.querySelectorAll('.tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const t = btn.dataset.tab;
+      document.querySelectorAll('.tab').forEach((b) => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.tab-panel').forEach((p) => {
+        p.classList.toggle('active', p.dataset.tab === t);
+      });
+    });
+  });
 
   function renderAll() {
     renderPlayerSelect();
@@ -77,14 +87,21 @@
     renderRoundsTable();
     renderMatchupSelects();
     renderMatchupsList();
-    // default date to today
-    const d = new Date().toISOString().slice(0, 10);
-    if (!$('roundDate').value) $('roundDate').value = d;
-    if (!$('matchupDate').value) $('matchupDate').value = d;
+    const today = new Date().toISOString().slice(0, 10);
+    if (!$('roundDate').value) $('roundDate').value = today;
+    if (!$('matchupDate').value) $('matchupDate').value = today;
+  }
+
+  function renderPlayerSelect() {
+    const sel = $('roundPlayer');
+    const prev = sel.value;
+    sel.innerHTML = data.players.length
+      ? data.players.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')
+      : '<option value="">-- add a player first --</option>';
+    if (prev) sel.value = prev;
   }
 
   function renderMatchupSelects() {
-    const data = KRGolf.load();
     const opts = data.players.length
       ? data.players.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')
       : '<option value="">-- add players first --</option>';
@@ -96,8 +113,78 @@
     });
   }
 
+  function renderPlayersTable() {
+    const counts = {};
+    data.rounds.forEach((r) => { counts[r.playerId] = (counts[r.playerId] || 0) + 1; });
+    const body = $('playersBody');
+    if (!data.players.length) {
+      body.innerHTML = '<tr><td colspan="3" class="empty">No players yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = data.players
+      .slice()
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map(
+        (p) => `
+        <tr>
+          <td>${escapeHtml(p.name)}</td>
+          <td class="num">${counts[p.id] || 0}</td>
+          <td class="num"><button class="btn small danger" data-del-player="${p.id}">Remove</button></td>
+        </tr>`
+      )
+      .join('');
+    body.querySelectorAll('[data-del-player]').forEach((b) => {
+      b.addEventListener('click', async () => {
+        const id = b.dataset.delPlayer;
+        const p = data.players.find((x) => x.id === id);
+        if (!p) return;
+        const n = data.rounds.filter((r) => r.playerId === id).length;
+        const msg = n
+          ? `Remove ${p.name}? This will also delete ${n} round${n === 1 ? '' : 's'}.`
+          : `Remove ${p.name}?`;
+        if (!confirm(msg)) return;
+        try {
+          await KRGolf.deletePlayer(id);
+          await reload();
+        } catch (err) { alert('Delete failed: ' + err.message); }
+      });
+    });
+  }
+
+  function renderRoundsTable() {
+    const byId = Object.fromEntries(data.players.map((p) => [p.id, p]));
+    const body = $('roundsBody');
+    const rounds = data.rounds.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
+    if (!rounds.length) {
+      body.innerHTML = '<tr><td colspan="7" class="empty">No rounds yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = rounds
+      .map(
+        (r) => `
+        <tr>
+          <td>${formatDate(r.date)}</td>
+          <td>${escapeHtml((byId[r.playerId] || {}).name || '—')}</td>
+          <td class="num">${r.score}</td>
+          <td class="num">${r.birdies || 0}</td>
+          <td class="num">${r.eagles || 0}</td>
+          <td class="num">${r.holeInOnes || 0}</td>
+          <td class="num"><button class="btn small danger" data-del-round="${r.id}">Delete</button></td>
+        </tr>`
+      )
+      .join('');
+    body.querySelectorAll('[data-del-round]').forEach((b) => {
+      b.addEventListener('click', async () => {
+        if (!confirm('Delete this round?')) return;
+        try {
+          await KRGolf.deleteRound(b.dataset.delRound);
+          await reload();
+        } catch (err) { alert('Delete failed: ' + err.message); }
+      });
+    });
+  }
+
   function renderMatchupsList() {
-    const data = KRGolf.load();
     const byId = Object.fromEntries(data.players.map((p) => [p.id, p]));
     const list = $('matchupsList');
     const matchups = (data.matchups || []).slice().sort((a, b) => (a.date < b.date ? 1 : -1));
@@ -131,141 +218,52 @@
           </div>`;
       })
       .join('');
-
     list.querySelectorAll('[data-set-winner]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const id = btn.dataset.setWinner;
         const val = btn.dataset.value || null;
-        const d = KRGolf.load();
-        const m = (d.matchups || []).find((x) => x.id === id);
-        if (!m) return;
-        m.winnerId = val || null;
-        KRGolf.save(d);
-        renderMatchupsList();
+        try {
+          await KRGolf.setMatchupWinner(id, val);
+          await reload();
+        } catch (err) { alert('Update failed: ' + err.message); }
       });
     });
     list.querySelectorAll('[data-del-matchup]').forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         if (!confirm('Delete this matchup?')) return;
-        const d = KRGolf.load();
-        d.matchups = (d.matchups || []).filter((m) => m.id !== btn.dataset.delMatchup);
-        KRGolf.save(d);
-        renderMatchupsList();
+        try {
+          await KRGolf.deleteMatchup(btn.dataset.delMatchup);
+          await reload();
+        } catch (err) { alert('Delete failed: ' + err.message); }
       });
     });
   }
 
-  function renderPlayerSelect() {
-    const data = KRGolf.load();
-    const sel = $('roundPlayer');
-    const prev = sel.value;
-    sel.innerHTML = data.players.length
-      ? data.players.map((p) => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')
-      : '<option value="">-- add a player first --</option>';
-    if (prev) sel.value = prev;
-  }
-
-  function renderPlayersTable() {
-    const data = KRGolf.load();
-    const counts = {};
-    data.rounds.forEach((r) => { counts[r.playerId] = (counts[r.playerId] || 0) + 1; });
-    const body = $('playersBody');
-    if (!data.players.length) {
-      body.innerHTML = '<tr><td colspan="3" class="empty">No players yet.</td></tr>';
-      return;
-    }
-    body.innerHTML = data.players
-      .slice()
-      .sort((a, b) => a.name.localeCompare(b.name))
-      .map(
-        (p) => `
-        <tr>
-          <td>${escapeHtml(p.name)}</td>
-          <td class="num">${counts[p.id] || 0}</td>
-          <td class="num"><button class="btn small danger" data-del-player="${p.id}">Remove</button></td>
-        </tr>`
-      )
-      .join('');
-    body.querySelectorAll('[data-del-player]').forEach((b) => {
-      b.addEventListener('click', () => {
-        const id = b.dataset.delPlayer;
-        const d = KRGolf.load();
-        const p = d.players.find((x) => x.id === id);
-        if (!p) return;
-        const n = d.rounds.filter((r) => r.playerId === id).length;
-        const msg = n
-          ? `Remove ${p.name}? This will also delete ${n} round${n === 1 ? '' : 's'}.`
-          : `Remove ${p.name}?`;
-        if (!confirm(msg)) return;
-        d.players = d.players.filter((x) => x.id !== id);
-        d.rounds = d.rounds.filter((r) => r.playerId !== id);
-        KRGolf.save(d);
-        renderAll();
-      });
-    });
-  }
-
-  function renderRoundsTable() {
-    const data = KRGolf.load();
-    const byId = Object.fromEntries(data.players.map((p) => [p.id, p]));
-    const body = $('roundsBody');
-    const rounds = data.rounds.slice().sort((a, b) => (a.date < b.date ? 1 : -1));
-    if (!rounds.length) {
-      body.innerHTML = '<tr><td colspan="7" class="empty">No rounds yet.</td></tr>';
-      return;
-    }
-    body.innerHTML = rounds
-      .map(
-        (r) => `
-        <tr>
-          <td>${formatDate(r.date)}</td>
-          <td>${escapeHtml((byId[r.playerId] || {}).name || '—')}</td>
-          <td class="num">${r.score}</td>
-          <td class="num">${r.birdies || 0}</td>
-          <td class="num">${r.eagles || 0}</td>
-          <td class="num">${r.holeInOnes || 0}</td>
-          <td class="num"><button class="btn small danger" data-del-round="${r.id}">Delete</button></td>
-        </tr>`
-      )
-      .join('');
-    body.querySelectorAll('[data-del-round]').forEach((b) => {
-      b.addEventListener('click', () => {
-        if (!confirm('Delete this round?')) return;
-        const d = KRGolf.load();
-        d.rounds = d.rounds.filter((r) => r.id !== b.dataset.delRound);
-        KRGolf.save(d);
-        renderAll();
-      });
-    });
-  }
-
-  /* --- Add player --- */
-  $('playerForm').addEventListener('submit', (e) => {
+  /* Add player */
+  $('playerForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = $('playerName').value.trim();
     if (!name) return;
-    const d = KRGolf.load();
-    if (d.players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+    if (data.players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
       alert('A player with that name already exists.');
       return;
     }
-    d.players.push({ id: KRGolf.uid(), name });
-    KRGolf.save(d);
-    $('playerName').value = '';
-    renderAll();
+    try {
+      await KRGolf.addPlayer(name);
+      $('playerName').value = '';
+      await reload();
+    } catch (err) { alert('Add player failed: ' + err.message); }
   });
 
-  /* --- Post a round --- */
-  $('roundForm').addEventListener('submit', (e) => {
+  /* Post a round */
+  $('roundForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const d = KRGolf.load();
     const playerId = $('roundPlayer').value;
     if (!playerId) {
       alert('Add a player first in the Players tab.');
       return;
     }
     const round = {
-      id: KRGolf.uid(),
       playerId,
       date: $('roundDate').value,
       score: Number($('roundScore').value),
@@ -286,20 +284,21 @@
       setStatus($('roundStatus'), 'Date and score are required.', 'err');
       return;
     }
-    d.rounds.push(round);
-    KRGolf.save(d);
-    setStatus($('roundStatus'), 'Round saved ✓', 'ok');
-    // clear stat fields
-    ['roundBirdies','roundEagles','roundHIO','roundPars','roundBogeys','roundDoubleBogeys','roundFairways','roundGIR','roundPutts','roundDrive','roundSandies']
-      .forEach((id) => ($(id).value = 0));
-    $('roundScore').value = '';
-    renderAll();
+    try {
+      await KRGolf.addRound(round);
+      setStatus($('roundStatus'), 'Round saved ✓', 'ok');
+      ['roundBirdies','roundEagles','roundHIO','roundPars','roundBogeys','roundDoubleBogeys','roundFairways','roundGIR','roundPutts','roundDrive','roundSandies']
+        .forEach((id) => ($(id).value = 0));
+      $('roundScore').value = '';
+      await reload();
+    } catch (err) {
+      setStatus($('roundStatus'), 'Save failed: ' + err.message, 'err');
+    }
   });
 
-  /* --- Matchups --- */
-  $('matchupForm').addEventListener('submit', (e) => {
+  /* Matchups */
+  $('matchupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const d = KRGolf.load();
     const p1 = $('matchupP1').value;
     const p2 = $('matchupP2').value;
     const date = $('matchupDate').value;
@@ -311,23 +310,24 @@
       setStatus($('matchupStatus'), 'Pick two different players.', 'err');
       return;
     }
-    if (!Array.isArray(d.matchups)) d.matchups = [];
-    d.matchups.push({
-      id: KRGolf.uid(),
-      date,
-      player1Id: p1,
-      player2Id: p2,
-      winnerId: null
-    });
-    KRGolf.save(d);
-    setStatus($('matchupStatus'), 'Matchup added ✓', 'ok');
-    renderMatchupsList();
+    try {
+      await KRGolf.addMatchup({ date, player1Id: p1, player2Id: p2 });
+      setStatus($('matchupStatus'), 'Matchup added ✓', 'ok');
+      await reload();
+    } catch (err) {
+      setStatus($('matchupStatus'), 'Save failed: ' + err.message, 'err');
+    }
   });
 
-  /* --- Data export/import/wipe --- */
+  /* Data export/import/wipe */
   $('exportBtn').addEventListener('click', () => {
-    const d = KRGolf.load();
-    const blob = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({
+      version: 1,
+      league: { name: 'Knoll Run Golf League' },
+      players: data.players,
+      rounds: data.rounds,
+      matchups: data.matchups
+    }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     const stamp = new Date().toISOString().slice(0, 10);
@@ -341,16 +341,14 @@
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       try {
         const parsed = JSON.parse(reader.result);
-        if (!parsed || !Array.isArray(parsed.players) || !Array.isArray(parsed.rounds)) {
-          throw new Error('Invalid file format.');
-        }
-        if (!confirm('Replace all current league data with this file?')) return;
-        KRGolf.save(Object.assign(KRGolf.emptyData(), parsed));
+        if (!confirm('Replace all current league data with this file? This cannot be undone.')) return;
+        setStatus($('dataStatus'), 'Importing…', '');
+        await KRGolf.importData(parsed);
         setStatus($('dataStatus'), 'Data imported ✓', 'ok');
-        renderAll();
+        await reload();
       } catch (err) {
         setStatus($('dataStatus'), 'Import failed: ' + err.message, 'err');
       }
@@ -359,25 +357,30 @@
     e.target.value = '';
   });
 
-  $('wipeBtn').addEventListener('click', () => {
+  $('wipeBtn').addEventListener('click', async () => {
     if (!confirm('Wipe ALL league data? This cannot be undone.')) return;
     if (!confirm('Really wipe everything? Consider exporting a backup first.')) return;
-    KRGolf.save(KRGolf.emptyData());
-    setStatus($('dataStatus'), 'All data cleared.', 'ok');
-    renderAll();
+    try {
+      await KRGolf.wipeAll();
+      setStatus($('dataStatus'), 'All data cleared.', 'ok');
+      await reload();
+    } catch (err) {
+      setStatus($('dataStatus'), 'Wipe failed: ' + err.message, 'err');
+    }
   });
 
-  /* --- Change passcode --- */
+  /* Change passcode (= Supabase admin account password) */
   $('pwForm').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const cur = $('pwCurrent').value;
     const nw = $('pwNew').value;
     const cf = $('pwConfirm').value;
     if (nw !== cf) return setStatus($('pwStatus'), 'New passcodes do not match.', 'err');
-    const ok = await KRGolf.verifyPasscode(cur);
-    if (!ok) return setStatus($('pwStatus'), 'Current passcode is incorrect.', 'err');
-    await KRGolf.setPasscode(nw);
-    $('pwCurrent').value = $('pwNew').value = $('pwConfirm').value = '';
-    setStatus($('pwStatus'), 'Passcode updated ✓', 'ok');
+    try {
+      await KRGolf.updatePasscode(nw);
+      $('pwCurrent').value = $('pwNew').value = $('pwConfirm').value = '';
+      setStatus($('pwStatus'), 'Passcode updated ✓', 'ok');
+    } catch (err) {
+      setStatus($('pwStatus'), 'Update failed: ' + err.message, 'err');
+    }
   });
 })();

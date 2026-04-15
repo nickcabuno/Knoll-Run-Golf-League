@@ -1,85 +1,193 @@
-/* Shared data layer for Knoll Run Golf League
- * Uses localStorage. Admins can export/import JSON to share data across devices.
+/* Knoll Run Golf League — shared data layer (Supabase-backed)
+ *
+ * Public reads use the anon key; writes require a signed-in session via
+ * Supabase Auth (shared admin account). RLS policies enforce this server-side.
  */
 (function (global) {
-  const STORAGE_KEY = 'knollRunGolfData_v1';
-  const AUTH_KEY = 'knollRunGolfAuth_v1';
-
-  // Default passcode — change it from the Settings tab after first login.
-  const DEFAULT_PASSCODE = 'knollrun2026';
-
-  function emptyData() {
-    return {
-      version: 1,
-      league: { name: 'Knoll Run Golf League', season: new Date().getFullYear() },
-      players: [],
-      rounds: [],
-      matchups: [],
-      settings: { pwHash: null } // null means use default
-    };
+  const cfg = global.KR_CONFIG || {};
+  if (!global.supabase || !cfg.SUPABASE_URL) {
+    console.error('Supabase SDK or config missing.');
+    return;
   }
-
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return emptyData();
-      const parsed = JSON.parse(raw);
-      return Object.assign(emptyData(), parsed);
-    } catch (e) {
-      console.warn('Failed to load league data', e);
-      return emptyData();
-    }
-  }
-
-  function save(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
+  const sb = global.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
 
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
 
-  async function sha256(text) {
-    const buf = new TextEncoder().encode(text);
-    const hashBuf = await crypto.subtle.digest('SHA-256', buf);
-    return Array.from(new Uint8Array(hashBuf))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+  /* ---------- Row <-> object mapping ---------- */
+  function roundRowToObj(r) {
+    return {
+      id: r.id,
+      playerId: r.player_id,
+      date: r.date,
+      score: r.score,
+      course: r.course || '',
+      birdies: r.birdies || 0,
+      eagles: r.eagles || 0,
+      holeInOnes: r.hole_in_ones || 0,
+      pars: r.pars || 0,
+      bogeys: r.bogeys || 0,
+      doubleBogeys: r.double_bogeys || 0,
+      fairways: r.fairways || 0,
+      gir: r.gir || 0,
+      putts: r.putts || 0,
+      drive: r.drive || 0,
+      sandies: r.sandies || 0
+    };
+  }
+  function roundObjToRow(r) {
+    return {
+      id: r.id || uid(),
+      player_id: r.playerId,
+      date: r.date,
+      score: Number(r.score),
+      course: r.course || null,
+      birdies: Number(r.birdies) || 0,
+      eagles: Number(r.eagles) || 0,
+      hole_in_ones: Number(r.holeInOnes) || 0,
+      pars: Number(r.pars) || 0,
+      bogeys: Number(r.bogeys) || 0,
+      double_bogeys: Number(r.doubleBogeys) || 0,
+      fairways: Number(r.fairways) || 0,
+      gir: Number(r.gir) || 0,
+      putts: Number(r.putts) || 0,
+      drive: Number(r.drive) || 0,
+      sandies: Number(r.sandies) || 0
+    };
+  }
+  function matchupRowToObj(m) {
+    return {
+      id: m.id,
+      date: m.date,
+      player1Id: m.player1_id,
+      player2Id: m.player2_id,
+      winnerId: m.winner_id
+    };
   }
 
-  async function verifyPasscode(input) {
-    const data = load();
-    if (!data.settings.pwHash) {
-      // No custom passcode set — compare against default plaintext.
-      return input === DEFAULT_PASSCODE;
+  /* ---------- Reads ---------- */
+  async function loadData() {
+    const [p, r, m] = await Promise.all([
+      sb.from('players').select('*').order('name'),
+      sb.from('rounds').select('*').order('date', { ascending: false }),
+      sb.from('matchups').select('*').order('date', { ascending: false })
+    ]);
+    if (p.error) throw p.error;
+    if (r.error) throw r.error;
+    if (m.error) throw m.error;
+    return {
+      players: (p.data || []).map((x) => ({ id: x.id, name: x.name })),
+      rounds: (r.data || []).map(roundRowToObj),
+      matchups: (m.data || []).map(matchupRowToObj)
+    };
+  }
+
+  /* ---------- Auth ---------- */
+  async function signIn(passcode) {
+    const { error } = await sb.auth.signInWithPassword({
+      email: cfg.ADMIN_EMAIL,
+      password: passcode
+    });
+    return !error;
+  }
+  async function signOut() {
+    await sb.auth.signOut();
+  }
+  async function isAuthed() {
+    const { data } = await sb.auth.getSession();
+    return !!(data && data.session);
+  }
+  async function updatePasscode(newPasscode) {
+    const { error } = await sb.auth.updateUser({ password: newPasscode });
+    if (error) throw error;
+  }
+
+  /* ---------- Writes ---------- */
+  async function addPlayer(name) {
+    const id = uid();
+    const { error } = await sb.from('players').insert({ id, name });
+    if (error) throw error;
+    return id;
+  }
+  async function deletePlayer(id) {
+    const { error } = await sb.from('players').delete().eq('id', id);
+    if (error) throw error;
+  }
+
+  async function addRound(round) {
+    const { error } = await sb.from('rounds').insert(roundObjToRow(round));
+    if (error) throw error;
+  }
+  async function deleteRound(id) {
+    const { error } = await sb.from('rounds').delete().eq('id', id);
+    if (error) throw error;
+  }
+
+  async function addMatchup(m) {
+    const row = {
+      id: uid(),
+      date: m.date,
+      player1_id: m.player1Id,
+      player2_id: m.player2Id,
+      winner_id: null
+    };
+    const { error } = await sb.from('matchups').insert(row);
+    if (error) throw error;
+  }
+  async function setMatchupWinner(id, winnerId) {
+    const { error } = await sb
+      .from('matchups')
+      .update({ winner_id: winnerId })
+      .eq('id', id);
+    if (error) throw error;
+  }
+  async function deleteMatchup(id) {
+    const { error } = await sb.from('matchups').delete().eq('id', id);
+    if (error) throw error;
+  }
+
+  /* ---------- Bulk import / wipe (admin only) ---------- */
+  async function wipeAll() {
+    // Order matters: rounds/matchups FK to players.
+    const { error: e1 } = await sb.from('rounds').delete().neq('id', '');
+    if (e1) throw e1;
+    const { error: e2 } = await sb.from('matchups').delete().neq('id', '');
+    if (e2) throw e2;
+    const { error: e3 } = await sb.from('players').delete().neq('id', '');
+    if (e3) throw e3;
+  }
+
+  async function importData(json) {
+    if (!json || !Array.isArray(json.players)) {
+      throw new Error('Invalid data file: missing players array.');
     }
-    const hash = await sha256(input);
-    return hash === data.settings.pwHash;
-  }
-
-  async function setPasscode(newCode) {
-    const data = load();
-    data.settings.pwHash = await sha256(newCode);
-    save(data);
-  }
-
-  function isAuthed() {
-    try {
-      const v = sessionStorage.getItem(AUTH_KEY);
-      return v === '1';
-    } catch {
-      return false;
+    await wipeAll();
+    if (json.players.length) {
+      const { error } = await sb
+        .from('players')
+        .insert(json.players.map((p) => ({ id: p.id, name: p.name })));
+      if (error) throw error;
+    }
+    if (Array.isArray(json.rounds) && json.rounds.length) {
+      const { error } = await sb.from('rounds').insert(json.rounds.map(roundObjToRow));
+      if (error) throw error;
+    }
+    if (Array.isArray(json.matchups) && json.matchups.length) {
+      const rows = json.matchups.map((m) => ({
+        id: m.id || uid(),
+        date: m.date,
+        player1_id: m.player1Id,
+        player2_id: m.player2Id,
+        winner_id: m.winnerId || null
+      }));
+      const { error } = await sb.from('matchups').insert(rows);
+      if (error) throw error;
     }
   }
-  function setAuthed(on) {
-    if (on) sessionStorage.setItem(AUTH_KEY, '1');
-    else sessionStorage.removeItem(AUTH_KEY);
-  }
 
-  /* ---------- Stats helpers ---------- */
-
+  /* ---------- Stats (pure functions, same as before) ---------- */
   function playerStats(data) {
-    const byId = Object.fromEntries(data.players.map((p) => [p.id, p]));
     const agg = {};
     data.players.forEach((p) => {
       agg[p.id] = {
@@ -102,7 +210,6 @@
         sandies: 0
       };
     });
-
     data.rounds.forEach((r) => {
       const a = agg[r.playerId];
       if (!a) return;
@@ -122,55 +229,18 @@
       a.sandies += Number(r.sandies) || 0;
       if ((Number(r.drive) || 0) > a.drive) a.drive = Number(r.drive) || 0;
     });
-
     Object.values(agg).forEach((a) => {
       a.avg = a.rounds ? a.totalScore / a.rounds : null;
       a.puttsPerRound = a.rounds ? a.putts / a.rounds : null;
     });
-
     return Object.values(agg);
-  }
-
-  /* Weekly league points:
-   * For each distinct round date, rank players by score (lower better).
-   * Points: 10, 8, 6, 5, 4, 3, 2, 1 for positions 1..8. Ties share the sum evenly.
-   */
-  function computeLeaguePoints(data) {
-    const pointsTable = [10, 8, 6, 5, 4, 3, 2, 1];
-    const pts = {};
-    data.players.forEach((p) => (pts[p.id] = 0));
-
-    const byDate = {};
-    data.rounds.forEach((r) => {
-      (byDate[r.date] = byDate[r.date] || []).push(r);
-    });
-
-    Object.values(byDate).forEach((rounds) => {
-      const sorted = rounds.slice().sort((a, b) => a.score - b.score);
-      // group ties
-      let i = 0;
-      while (i < sorted.length) {
-        let j = i;
-        while (j < sorted.length && sorted[j].score === sorted[i].score) j++;
-        let sum = 0;
-        for (let k = i; k < j && k < pointsTable.length; k++) sum += pointsTable[k];
-        const share = (j - i) > 0 ? sum / (j - i) : 0;
-        for (let k = i; k < j; k++) {
-          if (pts[sorted[k].playerId] !== undefined) {
-            pts[sorted[k].playerId] += share;
-          }
-        }
-        i = j;
-      }
-    });
-    return pts;
   }
 
   function computeRecords(data) {
     const rec = {};
     data.players.forEach((p) => (rec[p.id] = { w: 0, l: 0, t: 0 }));
     (data.matchups || []).forEach((m) => {
-      if (!m.winnerId) return; // unplayed / not yet decided
+      if (!m.winnerId) return;
       if (m.winnerId === 'tie') {
         if (rec[m.player1Id]) rec[m.player1Id].t++;
         if (rec[m.player2Id]) rec[m.player2Id].t++;
@@ -189,26 +259,29 @@
   }
 
   function recordSortValue(r) {
-    // Higher is better: wins weighted, ties as half
     if (!r) return 0;
     const played = r.w + r.l + r.t;
-    if (!played) return -1; // unplayed sorts below played records
-    return (r.w + r.t * 0.5) / played + r.w * 0.0001; // tiebreak by raw wins
+    if (!played) return -1;
+    return (r.w + r.t * 0.5) / played + r.w * 0.0001;
   }
 
   global.KRGolf = {
-    STORAGE_KEY,
-    load,
-    save,
-    emptyData,
     uid,
-    sha256,
-    verifyPasscode,
-    setPasscode,
+    loadData,
+    signIn,
+    signOut,
     isAuthed,
-    setAuthed,
+    updatePasscode,
+    addPlayer,
+    deletePlayer,
+    addRound,
+    deleteRound,
+    addMatchup,
+    setMatchupWinner,
+    deleteMatchup,
+    wipeAll,
+    importData,
     playerStats,
-    computeLeaguePoints,
     computeRecords,
     formatRecord,
     recordSortValue

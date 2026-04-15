@@ -1,10 +1,18 @@
-/* Stat leaders page */
-(function () {
-  const data = KRGolf.load();
-  const stats = KRGolf.playerStats(data);
-
+/* Stat leaders page (async Supabase) */
+(async function () {
   const grid = document.getElementById('statsGrid');
   const fun = document.getElementById('funGrid');
+
+  let data;
+  try {
+    data = await KRGolf.loadData();
+  } catch (err) {
+    console.error(err);
+    grid.innerHTML = '<p class="empty-msg">Could not load stats.</p>';
+    return;
+  }
+
+  const stats = KRGolf.playerStats(data);
 
   const categories = [
     { title: '🐦 Birdies',       key: 'birdies',      dir: 'desc', min: 1, sub: 'Most birdies this season' },
@@ -16,9 +24,7 @@
   ];
 
   function rank(list, key, dir, min, fmt) {
-    const filtered = list.filter((s) => s.rounds >= min && s[key] != null && s[key] !== 0 || (key === 'avg' || key === 'best' || key === 'puttsPerRound') && s.rounds >= min && s[key] != null);
     const cleaned = list.filter((s) => s.rounds >= min && s[key] != null && !(typeof s[key] === 'number' && isNaN(s[key])));
-    // Special: counting stats require >0 to be interesting, computed averages only need rounds>=min
     const isCounting = !['avg', 'best', 'puttsPerRound'].includes(key);
     const usable = cleaned.filter((s) => (isCounting ? s[key] > 0 : true));
     usable.sort((a, b) => (dir === 'asc' ? a[key] - b[key] : b[key] - a[key]));
@@ -44,8 +50,7 @@
     })
     .join('');
 
-  // Fun stats: single-value highlights
-  const funStats = computeFunStats(data, stats);
+  const funStats = computeFunStats(data);
   fun.innerHTML = funStats
     .map(
       (f) => `
@@ -57,7 +62,7 @@
     )
     .join('');
 
-  function computeFunStats(data, stats) {
+  function computeFunStats(data) {
     const sum = (key) => data.rounds.reduce((s, r) => s + (Number(r[key]) || 0), 0);
     const totalRounds = data.rounds.length;
     const totalScore = data.rounds.reduce((s, r) => s + (Number(r.score) || 0), 0);

@@ -70,7 +70,7 @@
     { "id": "m12", "date": "2026-05-26", "player1Id": "p3", "player2Id": "p6", "winnerId": "p6" },
     { "id": "m13", "date": "2026-06-02", "player1Id": "p1", "player2Id": "p6", "winnerId": "p1" },
     { "id": "m14", "date": "2026-06-02", "player1Id": "p2", "player2Id": "p3", "winnerId": "p3" },
-    { "id": "m15", "date": "2026-06-02", "player1Id": "p4", "player2Id": "p5", "winnerId": "tie" },
+    { "id": "m15", "date": "2026-06-02", "player1Id": "p4", "player2Id": "p5", "winnerId": "p4" },
     { "id": "m16", "date": "2026-06-09", "player1Id": "p1", "player2Id": "p2", "winnerId": "p1" },
     { "id": "m17", "date": "2026-06-09", "player1Id": "p3", "player2Id": "p4", "winnerId": "p3" },
     { "id": "m18", "date": "2026-06-09", "player1Id": "p5", "player2Id": "p6", "winnerId": "p6" }

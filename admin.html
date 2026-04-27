@@ -135,11 +135,12 @@
         <div class="panel-head"><h2>Players</h2></div>
         <form id="playerForm" class="inline-form">
           <input type="text" id="playerName" placeholder="Player name" required />
+          <input type="number" id="playerHandicap" placeholder="Handicap" step="0.1" min="0" style="max-width:120px" />
           <button type="submit" class="btn">Add Player</button>
         </form>
         <div class="table-wrap">
           <table class="data-table" id="playersTable">
-            <thead><tr><th>Name</th><th class="num">Rounds</th><th></th></tr></thead>
+            <thead><tr><th>Name</th><th class="num">Handicap</th><th class="num">Rounds</th><th></th></tr></thead>
             <tbody id="playersBody"></tbody>
           </table>
         </div>

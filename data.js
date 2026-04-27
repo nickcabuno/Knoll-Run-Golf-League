@@ -77,7 +77,11 @@
     if (r.error) throw r.error;
     if (m.error) throw m.error;
     return {
-      players: (p.data || []).map((x) => ({ id: x.id, name: x.name })),
+      players: (p.data || []).map((x) => ({
+        id: x.id,
+        name: x.name,
+        handicap: x.handicap == null ? null : Number(x.handicap)
+      })),
       rounds: (r.data || []).map(roundRowToObj),
       matchups: (m.data || []).map(matchupRowToObj)
     };
@@ -104,11 +108,20 @@
   }
 
   /* ---------- Writes ---------- */
-  async function addPlayer(name) {
+  async function addPlayer(name, handicap) {
     const id = uid();
-    const { error } = await sb.from('players').insert({ id, name });
+    const row = { id, name };
+    if (handicap != null && handicap !== '' && !isNaN(Number(handicap))) {
+      row.handicap = Number(handicap);
+    }
+    const { error } = await sb.from('players').insert(row);
     if (error) throw error;
     return id;
+  }
+  async function updatePlayerHandicap(id, handicap) {
+    const value = (handicap === '' || handicap == null || isNaN(Number(handicap))) ? null : Number(handicap);
+    const { error } = await sb.from('players').update({ handicap: value }).eq('id', id);
+    if (error) throw error;
   }
   async function deletePlayer(id) {
     const { error } = await sb.from('players').delete().eq('id', id);
@@ -166,7 +179,11 @@
     if (json.players.length) {
       const { error } = await sb
         .from('players')
-        .insert(json.players.map((p) => ({ id: p.id, name: p.name })));
+        .insert(json.players.map((p) => ({
+          id: p.id,
+          name: p.name,
+          handicap: p.handicap == null ? null : Number(p.handicap)
+        })));
       if (error) throw error;
     }
     if (Array.isArray(json.rounds) && json.rounds.length) {
@@ -193,6 +210,7 @@
       agg[p.id] = {
         id: p.id,
         name: p.name,
+        handicap: p.handicap == null ? null : Number(p.handicap),
         rounds: 0,
         totalScore: 0,
         best: null,
@@ -273,6 +291,7 @@
     isAuthed,
     updatePasscode,
     addPlayer,
+    updatePlayerHandicap,
     deletePlayer,
     addRound,
     deleteRound,

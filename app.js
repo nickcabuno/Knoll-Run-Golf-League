@@ -25,6 +25,7 @@
 
   function columnsFor(sortKey) {
     const cols = [
+      { key: 'hcp', label: 'HCP', render: (r) => (r.handicap != null ? r.handicap.toFixed(1) : '—') },
       { key: 'best', label: 'Best', render: (r) => r.best ?? '—' },
       { key: 'avg', label: 'Avg', render: (r) => (r.avg != null ? r.avg.toFixed(1) : '—') },
       { key: 'birdies', label: 'Birdies', render: (r) => r.birdies },
@@ -109,16 +110,19 @@
         const cardCls = isTie ? 'matchup-card tie' : 'matchup-card';
         const leftWin = !isTie && m.winnerId === p1.id;
         const rightWin = !isTie && m.winnerId === p2.id;
+        const hcp = (p) => (p.handicap != null ? `HCP ${Number(p.handicap).toFixed(1)}` : 'HCP —');
         return `
           <div class="${cardCls}">
             <div class="matchup-side left ${leftWin ? 'winner' : ''}">
               <div class="player">${escapeHtml(p1.name)}</div>
               <div class="record">${KRGolf.formatRecord(r1)}</div>
+              <div class="record">${hcp(p1)}</div>
             </div>
             <div class="matchup-vs">VS</div>
             <div class="matchup-side right ${rightWin ? 'winner' : ''}">
               <div class="player">${escapeHtml(p2.name)}</div>
               <div class="record">${KRGolf.formatRecord(r2)}</div>
+              <div class="record">${hcp(p2)}</div>
             </div>
           </div>`;
       })

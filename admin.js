@@ -118,7 +118,7 @@
     data.rounds.forEach((r) => { counts[r.playerId] = (counts[r.playerId] || 0) + 1; });
     const body = $('playersBody');
     if (!data.players.length) {
-      body.innerHTML = '<tr><td colspan="3" class="empty">No players yet.</td></tr>';
+      body.innerHTML = '<tr><td colspan="4" class="empty">No players yet.</td></tr>';
       return;
     }
     body.innerHTML = data.players
@@ -128,11 +128,20 @@
         (p) => `
         <tr>
           <td>${escapeHtml(p.name)}</td>
+          <td class="num"><input type="number" step="0.1" min="0" class="hcp-input" data-hcp-player="${p.id}" value="${p.handicap == null ? '' : p.handicap}" style="width:80px;text-align:right" /></td>
           <td class="num">${counts[p.id] || 0}</td>
           <td class="num"><button class="btn small danger" data-del-player="${p.id}">Remove</button></td>
         </tr>`
       )
       .join('');
+    body.querySelectorAll('[data-hcp-player]').forEach((input) => {
+      input.addEventListener('change', async () => {
+        try {
+          await KRGolf.updatePlayerHandicap(input.dataset.hcpPlayer, input.value);
+          await reload();
+        } catch (err) { alert('Update failed: ' + err.message); }
+      });
+    });
     body.querySelectorAll('[data-del-player]').forEach((b) => {
       b.addEventListener('click', async () => {
         const id = b.dataset.delPlayer;
@@ -249,8 +258,9 @@
       return;
     }
     try {
-      await KRGolf.addPlayer(name);
+      await KRGolf.addPlayer(name, $('playerHandicap').value);
       $('playerName').value = '';
+      $('playerHandicap').value = '';
       await reload();
     } catch (err) { alert('Add player failed: ' + err.message); }
   });

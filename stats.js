@@ -18,14 +18,14 @@
     { title: '🐦 Birdies',       key: 'birdies',      dir: 'desc', min: 1, sub: 'Most birdies this season' },
     { title: '🦅 Eagles',        key: 'eagles',       dir: 'desc', min: 1, sub: 'Most eagles this season' },
     { title: '🎯 Pars',          key: 'pars',         dir: 'desc', min: 1, sub: 'Steady as she goes' },
-    { title: '😬 Bogeys',        key: 'bogeys',       dir: 'desc', min: 1, sub: 'Most bogeys this season' },
+    { title: '🎖️ Handicap',      key: 'handicap',     dir: 'asc',  min: 0, sub: 'Lowest handicap index', fmt: (v) => v == null ? '—' : Number(v).toFixed(1) },
     { title: '⛳ Best Round',     key: 'best',         dir: 'asc',  min: 1, sub: 'Single lowest round' },
     { title: '🏆 Lowest Average',key: 'avg',          dir: 'asc',  min: 1, sub: 'Scoring average (min 1 round)', fmt: (v) => v == null ? '—' : v.toFixed(1) }
   ];
 
   function rank(list, key, dir, min, fmt) {
     const cleaned = list.filter((s) => s.rounds >= min && s[key] != null && !(typeof s[key] === 'number' && isNaN(s[key])));
-    const isCounting = !['avg', 'best', 'puttsPerRound'].includes(key);
+    const isCounting = !['avg', 'best', 'puttsPerRound', 'handicap'].includes(key);
     const usable = cleaned.filter((s) => (isCounting ? s[key] > 0 : true));
     usable.sort((a, b) => (dir === 'asc' ? a[key] - b[key] : b[key] - a[key]));
     return usable.slice(0, 5).map((s) => ({ name: s.name, val: fmt ? fmt(s[key]) : s[key] }));

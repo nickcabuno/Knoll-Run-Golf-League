@@ -7,8 +7,12 @@ create extension if not exists "pgcrypto";
 create table if not exists players (
   id text primary key,
   name text not null,
+  handicap numeric,
   created_at timestamptz default now()
 );
+
+-- For existing databases:
+alter table players add column if not exists handicap numeric;
 
 create table if not exists rounds (
   id text primary key,

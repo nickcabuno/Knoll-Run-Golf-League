@@ -65,7 +65,6 @@
   head.innerHTML = `
     <tr>
       <th>Date</th>
-      <th>Course</th>
       <th class="num">Score</th>
       <th class="num">Birdies</th>
       <th class="num">Eagles</th>
@@ -74,7 +73,7 @@
     </tr>`;
 
   if (!rounds.length) {
-    body.innerHTML = '<tr><td colspan="7" class="empty">No rounds posted yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" class="empty">No rounds posted yet.</td></tr>';
     return;
   }
 
@@ -83,7 +82,6 @@
       (r) => `
       <tr>
         <td>${formatDate(r.date)}</td>
-        <td>${escapeHtml(r.course || '—')}</td>
         <td class="num">${r.score}</td>
         <td class="num">${r.birdies || 0}</td>
         <td class="num">${r.eagles || 0}</td>

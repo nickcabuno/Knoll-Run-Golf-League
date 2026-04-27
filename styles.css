@@ -586,5 +586,7 @@ select:focus, input:focus { border-color: var(--accent); }
   .brand h1 { font-size: 1rem; }
 }
 
-.player-link { color: inherit; text-decoration: none; border-bottom: 1px dotted currentColor; }
-.player-link:hover { color: #2e7d32; border-bottom-style: solid; }
+.player-link { color: inherit; text-decoration: none; }
+.player-link:hover { color: #2e7d32; }
+.brand-link { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; }
+.brand-link:hover .logo-img { opacity: 0.9; }

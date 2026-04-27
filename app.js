@@ -1,6 +1,5 @@
 /* Homepage: renders leaderboard + weekly matchups (async Supabase) */
 (async function () {
-  const sortSelect = document.getElementById('sortBy');
   const lbHead = document.getElementById('leaderboardHead');
   const lbBody = document.getElementById('leaderboardBody');
   const matchupsWrap = document.getElementById('matchupsWrap');
@@ -23,23 +22,6 @@
     return `<span class="rank ${cls}">${i + 1}</span>`;
   }
 
-  function columnsFor(sortKey) {
-    const cols = [
-      { key: 'hcp', label: 'HCP', render: (r) => (r.handicap != null ? r.handicap.toFixed(1) : '—') },
-      { key: 'best', label: 'Best', render: (r) => r.best ?? '—' },
-      { key: 'avg', label: 'Avg', render: (r) => (r.avg != null ? r.avg.toFixed(1) : '—') },
-      { key: 'birdies', label: 'Birdies', render: (r) => r.birdies },
-      { key: 'pars', label: 'Pars', render: (r) => r.pars },
-      { key: 'record', label: 'Record', render: (r) => KRGolf.formatRecord(r.recordObj) }
-    ];
-    if (sortKey === 'record') {
-      const rec = cols.find((c) => c.key === 'record');
-      const rest = cols.filter((c) => c.key !== 'record');
-      return [rec, ...rest];
-    }
-    return cols;
-  }
-
   function renderLeaderboard() {
     const stats = KRGolf.playerStats(data);
     const records = KRGolf.computeRecords(data);
@@ -48,20 +30,14 @@
       .filter((s) => s.rounds > 0 || (records[s.id] && (records[s.id].w + records[s.id].l + records[s.id].t) > 0))
       .map((s) => ({ ...s, recordObj: records[s.id] || { w: 0, l: 0, t: 0 } }));
 
-    const sortKey = sortSelect.value;
-    rows.sort((a, b) => {
-      switch (sortKey) {
-        case 'best':
-          return (a.best ?? 999) - (b.best ?? 999);
-        case 'avg':
-          return (a.avg ?? 999) - (b.avg ?? 999);
-        case 'record':
-        default:
-          return KRGolf.recordSortValue(b.recordObj) - KRGolf.recordSortValue(a.recordObj);
-      }
-    });
+    rows.sort((a, b) => KRGolf.recordSortValue(b.recordObj) - KRGolf.recordSortValue(a.recordObj));
 
-    const cols = columnsFor(sortKey);
+    const cols = [
+      { key: 'record', label: 'Record', render: (r) => KRGolf.formatRecord(r.recordObj) },
+      { key: 'hcp', label: 'HCP', render: (r) => (r.handicap != null ? r.handicap.toFixed(1) : '—') },
+      { key: 'best', label: 'Best', render: (r) => r.best ?? '—' },
+      { key: 'avg', label: 'Avg', render: (r) => (r.avg != null ? r.avg.toFixed(1) : '—') }
+    ];
     lbHead.innerHTML = `
       <tr>
         <th>#</th>
@@ -142,7 +118,6 @@
     }[c]));
   }
 
-  sortSelect.addEventListener('change', renderLeaderboard);
   renderLeaderboard();
   renderMatchups();
 })();

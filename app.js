@@ -55,7 +55,7 @@
         (r, i) => `
         <tr>
           <td>${rankBadge(i)}</td>
-          <td>${escapeHtml(r.name)}</td>
+          <td><a class="player-link" href="player.html?id=${encodeURIComponent(r.id)}">${escapeHtml(r.name)}</a></td>
           ${cols.map((c) => `<td class="num">${c.render(r)}</td>`).join('')}
         </tr>`
       )
@@ -90,13 +90,13 @@
         return `
           <div class="${cardCls}">
             <div class="matchup-side left ${leftWin ? 'winner' : ''}">
-              <div class="player">${escapeHtml(p1.name)}</div>
+              <div class="player"><a class="player-link" href="player.html?id=${encodeURIComponent(p1.id)}">${escapeHtml(p1.name)}</a></div>
               <div class="record">${KRGolf.formatRecord(r1)}</div>
               <div class="record">${hcp(p1)}</div>
             </div>
             <div class="matchup-vs">VS</div>
             <div class="matchup-side right ${rightWin ? 'winner' : ''}">
-              <div class="player">${escapeHtml(p2.name)}</div>
+              <div class="player"><a class="player-link" href="player.html?id=${encodeURIComponent(p2.id)}">${escapeHtml(p2.name)}</a></div>
               <div class="record">${KRGolf.formatRecord(r2)}</div>
               <div class="record">${hcp(p2)}</div>
             </div>

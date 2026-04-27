@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knoll Run Golf League — Player</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <img src="logo.png" alt="Knoll Run Golf Course" class="logo-img" />
+      <div>
+        <h1>Knoll Run Golf League</h1>
+        <p class="tag">Player Profile</p>
+      </div>
+    </div>
+    <nav class="main-nav">
+      <a href="index.html">Leaderboard</a>
+      <a href="stats.html">Stat Leaders</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <div class="panel-head">
+        <h2 id="playerName">Loading…</h2>
+        <p class="muted" id="playerSummary"></p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Past Rounds</h2>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table" id="roundsTable">
+          <thead id="roundsHead"></thead>
+          <tbody id="roundsBody">
+            <tr><td colspan="7" class="empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>&copy; Knoll Run Golf League</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="player.js"></script>
+</body>
+</html>

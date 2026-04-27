@@ -66,14 +66,13 @@
     <tr>
       <th>Date</th>
       <th class="num">Score</th>
-      <th class="num">Birdies</th>
       <th class="num">Eagles</th>
+      <th class="num">Birdies</th>
       <th class="num">Pars</th>
-      <th class="num">Bogeys</th>
     </tr>`;
 
   if (!rounds.length) {
-    body.innerHTML = '<tr><td colspan="6" class="empty">No rounds posted yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="5" class="empty">No rounds posted yet.</td></tr>';
     return;
   }
 
@@ -83,10 +82,9 @@
       <tr>
         <td>${formatDate(r.date)}</td>
         <td class="num">${r.score}</td>
-        <td class="num">${r.birdies || 0}</td>
         <td class="num">${r.eagles || 0}</td>
+        <td class="num">${r.birdies || 0}</td>
         <td class="num">${r.pars || 0}</td>
-        <td class="num">${r.bogeys || 0}</td>
       </tr>`
     )
     .join('');

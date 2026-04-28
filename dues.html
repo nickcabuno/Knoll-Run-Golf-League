@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Knoll Run Golf League — Player</title>
+  <title>Knoll Run Cup — Pay League Dues</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -14,47 +14,33 @@
         <img src="logo.png" alt="Knoll Run Golf Course" class="logo-img" />
         <div>
           <h1>Knoll Run Cup</h1>
-          <p class="tag">Player Profile</p>
+          <p class="tag">Pay League Dues</p>
         </div>
       </a>
     </div>
     <nav class="main-nav">
       <a href="index.html">Leaderboard</a>
       <a href="stats.html">Stat Leaders</a>
-      <a href="dues.html">Pay League Dues</a>
+      <a href="dues.html" class="active">Pay League Dues</a>
     </nav>
   </header>
 
   <main class="container">
     <section class="panel">
       <div class="panel-head">
-        <h2 id="playerName">Loading…</h2>
-        <p class="muted" id="playerSummary"></p>
+        <h2>Pay League Dues</h2>
+        <p class="muted">Send your league dues to the commissioner via Venmo.</p>
       </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel-head">
-        <h2>Past Rounds</h2>
-      </div>
-      <div class="table-wrap">
-        <table class="data-table" id="roundsTable">
-          <thead id="roundsHead"></thead>
-          <tbody id="roundsBody">
-            <tr><td colspan="5" class="empty">Loading…</td></tr>
-          </tbody>
-        </table>
+      <div class="dues-pay">
+        <a class="venmo-btn" href="https://account.venmo.com/pay?recipients=Theodore-Spencer" target="_blank" rel="noopener">
+          <img src="venmo.png" alt="Pay with Venmo" />
+        </a>
       </div>
     </section>
   </main>
 
   <footer class="site-footer">
-    <span>&copy; Knoll Run Golf League</span>
+    <span>&copy; Knoll Run Cup</span>
   </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="config.js"></script>
-  <script src="data.js"></script>
-  <script src="player.js"></script>
 </body>
 </html>

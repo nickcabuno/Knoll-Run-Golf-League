@@ -595,4 +595,4 @@ select:focus, input:focus { border-color: var(--accent); }
 .dues-pay { display: flex; justify-content: center; padding: 24px 0 12px; }
 .venmo-btn { display: inline-block; transition: transform 0.15s ease, opacity 0.15s ease; }
 .venmo-btn:hover { transform: translateY(-1px); opacity: 0.9; }
-.venmo-btn img { display: block; max-width: 240px; width: 100%; height: auto; }
+.venmo-btn img { display: block; max-width: 120px; width: 100%; height: auto; }

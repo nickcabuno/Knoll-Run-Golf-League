@@ -5,13 +5,17 @@
   const matchupsWrap = document.getElementById('matchupsWrap');
   const weekLabel = document.getElementById('weekLabel');
 
+  const hasLeaderboard = !!(lbHead && lbBody);
+  const hasMatchups = !!matchupsWrap;
+  if (!hasLeaderboard && !hasMatchups) return;
+
   let data;
   try {
     data = await KRGolf.loadData();
   } catch (err) {
     console.error(err);
-    lbBody.innerHTML = `<tr><td colspan="8" class="empty">Could not load league data. Please try again.</td></tr>`;
-    matchupsWrap.innerHTML = '<p class="empty-msg">Could not load matchups.</p>';
+    if (hasLeaderboard) lbBody.innerHTML = `<tr><td colspan="8" class="empty">Could not load league data. Please try again.</td></tr>`;
+    if (hasMatchups) matchupsWrap.innerHTML = '<p class="empty-msg">Could not load matchups.</p>';
     return;
   }
 
@@ -118,6 +122,6 @@
     }[c]));
   }
 
-  renderLeaderboard();
-  renderMatchups();
+  if (hasLeaderboard) renderLeaderboard();
+  if (hasMatchups) renderMatchups();
 })();

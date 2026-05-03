@@ -586,7 +586,7 @@ select:focus, input:focus { border-color: var(--accent); }
 
 .login-panel { max-width: 440px; margin: 40px auto; }
 
-@media (max-width: 799px) {
+@media (max-width: 919px) {
   .main-nav { display: none; }
   .hamburger-btn { display: flex; }
   .site-header {

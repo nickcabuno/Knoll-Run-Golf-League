@@ -73,9 +73,13 @@
       weekLabel.textContent = '';
       return;
     }
-    const latest = matchups.map((m) => m.date).filter(Boolean).sort().pop();
-    const thisWeek = matchups.filter((m) => m.date === latest);
-    weekLabel.textContent = latest ? `Week of ${formatDate(latest)}` : '';
+    const target = currentWeekMatchupDate(matchups);
+    const thisWeek = target ? matchups.filter((m) => m.date === target) : [];
+    weekLabel.textContent = target ? `Week of ${formatDate(target)}` : '';
+    if (!thisWeek.length) {
+      matchupsWrap.innerHTML = '<p class="empty-msg">No matchups scheduled yet.</p>';
+      return;
+    }
 
     const records = KRGolf.computeRecords(data);
 
@@ -107,6 +111,27 @@
           </div>`;
       })
       .join('')}</div>`;
+  }
+
+  function toLocalISO(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // Returns the matchup date that represents "this week."
+  // Week boundary is Sunday 00:00 local time, so on Sunday the page rolls
+  // forward to the upcoming week's matchups. Falls back to the most recent
+  // past date if nothing is scheduled for the current/upcoming week.
+  function currentWeekMatchupDate(matchups) {
+    const dates = [...new Set(matchups.map((m) => m.date).filter(Boolean))].sort();
+    if (!dates.length) return null;
+    const today = new Date();
+    const sow = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    sow.setDate(sow.getDate() - sow.getDay());
+    const sowISO = toLocalISO(sow);
+    return dates.find((d) => d >= sowISO) || dates[dates.length - 1];
   }
 
   function formatDate(iso) {

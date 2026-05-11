@@ -260,8 +260,8 @@
     (data.matchups || []).forEach((m) => {
       if (!m.winnerId) return;
       if (m.winnerId === 'tie') {
-        if (rec[m.player1Id]) rec[m.player1Id].t++;
-        if (rec[m.player2Id]) rec[m.player2Id].t++;
+        if (rec[m.player1Id]) rec[m.player1Id].l++;
+        if (rec[m.player2Id]) rec[m.player2Id].l++;
         return;
       }
       const loserId = m.winnerId === m.player1Id ? m.player2Id : m.player1Id;

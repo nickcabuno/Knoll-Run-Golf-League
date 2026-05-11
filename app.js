@@ -34,7 +34,13 @@
       .filter((s) => s.rounds > 0 || (records[s.id] && (records[s.id].w + records[s.id].l + records[s.id].t) > 0))
       .map((s) => ({ ...s, recordObj: records[s.id] || { w: 0, l: 0, t: 0 } }));
 
-    rows.sort((a, b) => KRGolf.recordSortValue(b.recordObj) - KRGolf.recordSortValue(a.recordObj));
+    rows.sort((a, b) => {
+      const recDiff = KRGolf.recordSortValue(b.recordObj) - KRGolf.recordSortValue(a.recordObj);
+      if (recDiff !== 0) return recDiff;
+      const aAvg = a.avg == null ? Infinity : a.avg;
+      const bAvg = b.avg == null ? Infinity : b.avg;
+      return aAvg - bAvg;
+    });
 
     const cols = [
       { key: 'record', label: 'Record', render: (r) => KRGolf.formatRecord(r.recordObj) },
@@ -95,18 +101,26 @@
         const leftWin = !isTie && m.winnerId === p1.id;
         const rightWin = !isTie && m.winnerId === p2.id;
         const hcp = (p) => (p.handicap != null ? `HCP ${Number(p.handicap).toFixed(1)}` : 'HCP —');
+        const scoreFor = (pid) => {
+          const round = (data.rounds || []).find((r) => r.playerId === pid && r.date === m.date);
+          return round && round.score != null ? round.score : null;
+        };
+        const hcpAndScore = (p) => {
+          const s = scoreFor(p.id);
+          return s != null ? `${hcp(p)} &middot; ${s}` : hcp(p);
+        };
         return `
           <div class="${cardCls}">
             <div class="matchup-side left ${leftWin ? 'winner' : ''}">
               <div class="player"><a class="player-link" href="player.html?id=${encodeURIComponent(p1.id)}">${escapeHtml(p1.name)}</a></div>
               <div class="record">${KRGolf.formatRecord(r1)}</div>
-              <div class="record">${hcp(p1)}</div>
+              <div class="record">${hcpAndScore(p1)}</div>
             </div>
             <div class="matchup-vs">VS</div>
             <div class="matchup-side right ${rightWin ? 'winner' : ''}">
               <div class="player"><a class="player-link" href="player.html?id=${encodeURIComponent(p2.id)}">${escapeHtml(p2.name)}</a></div>
               <div class="record">${KRGolf.formatRecord(r2)}</div>
-              <div class="record">${hcp(p2)}</div>
+              <div class="record">${hcpAndScore(p2)}</div>
             </div>
           </div>`;
       })

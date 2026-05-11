@@ -69,10 +69,12 @@
       <th class="num">Eagles</th>
       <th class="num">Birdies</th>
       <th class="num">Pars</th>
+      <th class="num">Bogeys</th>
+      <th class="num">Double Bogeys</th>
     </tr>`;
 
   if (!rounds.length) {
-    body.innerHTML = '<tr><td colspan="5" class="empty">No rounds posted yet.</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" class="empty">No rounds posted yet.</td></tr>';
     return;
   }
 
@@ -85,6 +87,8 @@
         <td class="num">${r.eagles || 0}</td>
         <td class="num">${r.birdies || 0}</td>
         <td class="num">${r.pars || 0}</td>
+        <td class="num">${r.bogeys || 0}</td>
+        <td class="num">${r.doubleBogeys || 0}</td>
       </tr>`
     )
     .join('');

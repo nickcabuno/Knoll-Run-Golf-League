@@ -121,7 +121,7 @@
   }
 
   // Returns the matchup date that represents "this week."
-  // Week boundary is Sunday 00:00 local time, so on Sunday the page rolls
+  // Week boundary is Tuesday 00:00 local time, so on Tuesday the page rolls
   // forward to the upcoming week's matchups. Falls back to the most recent
   // past date if nothing is scheduled for the current/upcoming week.
   function currentWeekMatchupDate(matchups) {
@@ -129,7 +129,7 @@
     if (!dates.length) return null;
     const today = new Date();
     const sow = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    sow.setDate(sow.getDate() - sow.getDay());
+    sow.setDate(sow.getDate() - ((sow.getDay() - 2 + 7) % 7));
     const sowISO = toLocalISO(sow);
     return dates.find((d) => d >= sowISO) || dates[dates.length - 1];
   }

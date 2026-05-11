@@ -604,23 +604,23 @@ select:focus, input:focus { border-color: var(--accent); }
   .container { padding: 0 10px 50px; margin-top: 14px; gap: 12px; }
   .panel { padding: 10px 12px; border-radius: 12px; width: 100%; }
   .panel-head { margin-bottom: 8px; }
-  .panel-head h2 { font-size: 1rem; }
-  .brand h1 { font-size: 1.05rem; }
-  .tag { font-size: 0.78rem; }
+  .panel-head h2 { font-size: 0.95rem; }
+  .brand h1 { font-size: 1rem; }
+  .tag { font-size: 0.74rem; }
 
   /* Tables: smaller type, horizontal scroll on overflow, tight padding */
-  .data-table { font-size: 0.82rem; }
+  .data-table { font-size: 0.78rem; }
   .data-table th, .data-table td { padding: 7px 8px; }
   .data-table th {
-    font-size: 0.68rem;
+    font-size: 0.64rem;
     letter-spacing: 0.3px;
   }
   .data-table .rank {
     min-width: 22px;
     padding: 2px 4px;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
   }
-  .foot-note { font-size: 0.75rem; }
+  .foot-note { font-size: 0.72rem; }
 
   /* Matchup cards: tighter, stay legible at 375px */
   .matchups-grid {
@@ -632,9 +632,9 @@ select:focus, input:focus { border-color: var(--accent); }
     gap: 6px;
   }
   .matchup-side { padding: 7px 8px; }
-  .matchup-side .player { font-size: 0.85rem; }
-  .matchup-side .record { font-size: 0.72rem; }
-  .matchup-vs { font-size: 0.72rem; padding: 0 2px; }
+  .matchup-side .player { font-size: 0.82rem; }
+  .matchup-side .record { font-size: 0.7rem; }
+  .matchup-vs { font-size: 0.7rem; padding: 0 2px; }
 
   /* Stats + fun grids: single column at phone widths */
   .stats-grid {
@@ -676,9 +676,9 @@ select:focus, input:focus { border-color: var(--accent); }
 }
 
 @media (max-width: 440px) {
-  .data-table { font-size: 0.78rem; }
+  .data-table { font-size: 0.74rem; }
   .data-table th, .data-table td { padding: 6px 6px; }
-  .main-nav a { padding: 6px 8px; font-size: 0.82rem; }
+  .main-nav a { padding: 6px 8px; font-size: 0.78rem; }
 }
 
 @media (max-width: 400px) {

@@ -70,7 +70,7 @@
       <th class="num">Birdies</th>
       <th class="num">Pars</th>
       <th class="num">Bogeys</th>
-      <th class="num">Double Bogeys</th>
+      <th class="num">Doubles</th>
     </tr>`;
 
   if (!rounds.length) {

@@ -72,14 +72,103 @@
       .join('');
   }
 
+  let weeks = [];
+  let selectedWeekIdx = 0;
+
+  function buildWeeks(matchups) {
+    const dates = [...new Set(matchups.map((m) => m.date).filter(Boolean))].sort();
+    return dates.map((date, i) => {
+      const start = new Date(date + 'T00:00:00');
+      const end = new Date(start);
+      end.setDate(end.getDate() + 6);
+      const monthShort = (dt) => dt.toLocaleDateString(undefined, { month: 'short' });
+      const sameMonth = start.getMonth() === end.getMonth();
+      const range = sameMonth
+        ? `${monthShort(start)} ${start.getDate()} - ${end.getDate()}`
+        : `${monthShort(start)} ${start.getDate()} - ${monthShort(end)} ${end.getDate()}`;
+      return { date, label: `Week ${i + 1}`, range };
+    });
+  }
+
+  function defaultWeekIdx(weeksArr) {
+    const target = currentWeekMatchupDate(data.matchups || []);
+    const idx = weeksArr.findIndex((w) => w.date === target);
+    return idx >= 0 ? idx : weeksArr.length - 1;
+  }
+
+  function renderWeekPicker() {
+    const wrap = document.getElementById('weekPicker');
+    if (!wrap) return;
+    if (!weeks.length) { wrap.innerHTML = ''; return; }
+    wrap.innerHTML = `
+      <button class="wp-arrow wp-prev" aria-label="Previous week" type="button">&#x2039;</button>
+      <div class="wp-viewport"><div class="wp-track">
+        ${weeks.map((w, i) => `
+          <button class="wp-item${i === selectedWeekIdx ? ' selected' : ''}" data-idx="${i}" type="button">
+            <span class="wp-week">${escapeHtml(w.label.toUpperCase())}</span>
+            <span class="wp-range">${escapeHtml(w.range)}</span>
+          </button>`).join('')}
+      </div></div>
+      <button class="wp-arrow wp-next" aria-label="Next week" type="button">&#x203A;</button>`;
+    const track = wrap.querySelector('.wp-track');
+    const prevBtn = wrap.querySelector('.wp-prev');
+    const nextBtn = wrap.querySelector('.wp-next');
+    function updatePosition() {
+      const itemsPerView = window.matchMedia('(max-width: 799px)').matches ? 3 : 7;
+      const center = Math.floor(itemsPerView / 2);
+      const maxLeft = Math.max(0, weeks.length - itemsPerView);
+      const left = Math.min(Math.max(0, selectedWeekIdx - center), maxLeft);
+      track.style.transform = `translateX(-${left * (100 / itemsPerView)}%)`;
+      wrap.querySelectorAll('.wp-item').forEach((el, i) => {
+        el.classList.toggle('selected', i === selectedWeekIdx);
+      });
+      prevBtn.disabled = selectedWeekIdx <= 0;
+      nextBtn.disabled = selectedWeekIdx >= weeks.length - 1;
+    }
+    function selectIdx(idx) {
+      if (idx < 0 || idx >= weeks.length || idx === selectedWeekIdx) return;
+      selectedWeekIdx = idx;
+      updatePosition();
+      renderMatchupsBody();
+    }
+    prevBtn.addEventListener('click', () => selectIdx(selectedWeekIdx - 1));
+    nextBtn.addEventListener('click', () => selectIdx(selectedWeekIdx + 1));
+    wrap.querySelectorAll('.wp-item').forEach((el) => {
+      el.addEventListener('click', () => selectIdx(Number(el.dataset.idx)));
+    });
+    if (!renderWeekPicker._bound) {
+      window.addEventListener('resize', () => {
+        const t = document.querySelector('#weekPicker .wp-track');
+        if (!t || !weeks.length) return;
+        const itemsPerView = window.matchMedia('(max-width: 799px)').matches ? 3 : 7;
+        const center = Math.floor(itemsPerView / 2);
+        const maxLeft = Math.max(0, weeks.length - itemsPerView);
+        const left = Math.min(Math.max(0, selectedWeekIdx - center), maxLeft);
+        t.style.transform = `translateX(-${left * (100 / itemsPerView)}%)`;
+      });
+      renderWeekPicker._bound = true;
+    }
+    updatePosition();
+  }
+
   function renderMatchups() {
     const matchups = data.matchups || [];
     if (!matchups.length) {
       matchupsWrap.innerHTML = '<p class="empty-msg">No matchups scheduled yet.</p>';
       weekLabel.textContent = '';
+      const wp = document.getElementById('weekPicker');
+      if (wp) wp.innerHTML = '';
       return;
     }
-    const target = currentWeekMatchupDate(matchups);
+    weeks = buildWeeks(matchups);
+    selectedWeekIdx = defaultWeekIdx(weeks);
+    renderWeekPicker();
+    renderMatchupsBody();
+  }
+
+  function renderMatchupsBody() {
+    const matchups = data.matchups || [];
+    const target = weeks[selectedWeekIdx] ? weeks[selectedWeekIdx].date : null;
     const thisWeek = target ? matchups.filter((m) => m.date === target) : [];
     weekLabel.textContent = target ? `Week of ${formatDate(target)}` : '';
     if (!thisWeek.length) {
